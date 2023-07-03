@@ -1,0 +1,145 @@
+/*
+
+Analyzing Fortune 500 company data in the Marklogic Data Hub using JavaScript queries.
+
+*/
+
+/*
+Listed in descending order of company profits, what are the top 10 most profitable Fortune 500 companies
+headquartered in the Northeastern region of the United States with a range of employees between 1000 and 5000
+and a margin of at least 10.0?
+*/
+
+'use strict';
+
+const jSearch = require('/MarkLogic/jsearch');
+
+if (xdmp.databaseName(xdmp.database()) === 'data-hub-FINAL') {
+ 
+  const companies = jSearch.collections('company');
+ 
+  const searchResults =
+	companies.documents()
+	.where(
+  	jSearch.byExample([
+   	{
+      	"$or": [
+        	{ "STATE": { "$word": "ME" } },
+        	{ "STATE": { "$word": "NY" } },
+        	{ "STATE": { "$word": "NJ" } },
+        	{ "STATE": { "$word": "VT" } },
+        	{ "STATE": { "$word": "MA" } },
+        	{ "STATE": { "$word": "RI" } },
+        	{ "STATE": { "$word": "CT" } },
+        	{ "STATE": { "$word": "NH" } },
+        	{ "STATE": { "$word": "PA" } },
+      	],
+      	"$and":[
+        	{ "EMPLOYEES": { "$le": 5000 } },
+        	{ "EMPLOYEES": { "$ge": 1000 } },
+        	{ "MARGIN": { "$ge": 10 } }
+      	]
+    	}
+  	])
+	)
+    
+  	 
+	.orderBy(cts.indexOrder(cts.jsonPropertyReference('PROFIT'), 'descending') )
+	.slice(0,50)
+	.result();
+ 
+	const companyNames = [];
+ 
+	searchResults.results.forEach(function(result){
+  	companyNames.push(result.document.envelope.instance.company.$attachments.NAME);
+  	//companyNames.push(result.document.envelope.instance.company.$attachments.STATE);
+  	//companyNames.push(result.document.envelope.instance.company.$attachments.EMPLOYEES);
+  	//companyNames.push(result.document.envelope.instance.company.$attachments.PROFIT);
+  	//companyNames.push(result.document.envelope.instance.company.$version.MARGIN);
+
+	});
+ 
+	companyNames;  
+ 
+} else {
+  'Please select the data-hub-FINAL database and run this code again.';
+}
+
+/*
+What happens when you modify the same query in 1 above for Fortune 500 companies with a range of employees
+between 1000 and 10000?
+*/
+
+'use strict';
+
+const jSearch = require('/MarkLogic/jsearch');
+
+if (xdmp.databaseName(xdmp.database()) === 'data-hub-FINAL') {
+ 
+  const companies = jSearch.collections('company');
+ 
+  const searchResults =
+	companies.documents()
+	.where(
+  	jSearch.byExample([
+   	{
+      	"$or": [
+        	{ "STATE": { "$word": "ME" } },
+        	{ "STATE": { "$word": "NY" } },
+        	{ "STATE": { "$word": "NJ" } },
+        	{ "STATE": { "$word": "VT" } },
+        	{ "STATE": { "$word": "MA" } },
+        	{ "STATE": { "$word": "RI" } },
+        	{ "STATE": { "$word": "CT" } },
+        	{ "STATE": { "$word": "NH" } },
+        	{ "STATE": { "$word": "PA" } },
+      	],
+      	"$and":[
+        	{ "EMPLOYEES": { "$le": 10000 } },
+        	{ "EMPLOYEES": { "$ge": 1000 } },
+        	{ "MARGIN": { "$ge": 10 } }
+      	]
+    	}
+  	])
+	)
+    
+  	 
+	.orderBy(cts.indexOrder(cts.jsonPropertyReference('PROFIT'), 'descending') )
+	.slice(0,50)
+	.result();
+ 
+	const companyNames = [];
+ 
+	searchResults.results.forEach(function(result){
+  	companyNames.push(result.document.envelope.instance.company.$attachments.NAME);
+  	//companyNames.push(result.document.envelope.instance.company.$attachments.STATE);
+  	//companyNames.push(result.document.envelope.instance.company.$attachments.EMPLOYEES);
+  	//companyNames.push(result.document.envelope.instance.company.$attachments.PROFIT);
+  	//companyNames.push(result.document.envelope.instance.company.$version.MARGIN);
+
+	});
+ 
+	companyNames;  
+ 
+} else {
+  'Please select the data-hub-FINAL database and run this code again.';
+}
+
+/*
+Modify the functioning co-occurrence analysis example between product and sentiments to perform a
+co-occurrence analysis of companies, products, and sentiments. 
+*/
+
+'use strict';
+
+const jSearch = require('/MarkLogic/jsearch');
+
+if (xdmp.databaseName(xdmp.database()) === 'data-hub-FINAL') {
+
+  jSearch.tuples(['companyName','productName','sentimentScore']) 
+	.orderBy('frequency')
+	.result();
+
+} else {
+  'Please select the data-hub-FINAL database and run this code again.';
+}
